@@ -1,0 +1,57 @@
+@startuml
+left to right direction
+actor Admin
+actor "GVCN" as gvcn
+actor "GVBM" as gvbm
+actor "Học sinh" as hs
+
+rectangle "Hệ thống quản lý lớp học" {
+
+  (Tạo lớp chủ nhiệm) as UC1
+  (Gán GVCN) as UC2
+  (Quản lý tài khoản) as UC3
+
+  (Gán GVBM cho lớp) as UC4
+  (Thêm học sinh vào lớp) as UC5
+  (Xem tình trạng học tập của học sinh) as UC20
+  (Tạo thời khóa biểu) as UC6
+
+  (Tạo lớp môn) as UC7
+  (Nhập điểm) as UC8
+  (Tính điểm trung bình) as UC9
+  (Chỉnh sửa điểm) as UC10
+  (Gửi thông báo cho GVCN) as UC22
+
+  (Soạn & gửi thông báo) as UC12
+  (Gửi thông báo cho học sinh) as UC13
+
+  (Xem thời khóa biểu) as UC14
+  (Xem thông báo) as UC15
+  (Xem kết quả học tập) as UC16
+}
+
+Admin --> UC1
+Admin --> UC2
+Admin --> UC3
+
+gvcn --> UC4
+gvcn --> UC5
+gvcn --> UC20
+gvcn --> UC6
+gvcn --> UC8 
+gvcn --> UC12
+
+gvbm --> UC7
+gvbm --> UC8
+UC8 --> UC9 : <<include>>
+UC8 --> UC10 : <<extend>>
+UC8 --> UC22 : <<extend>>
+UC10 --> UC22: <<extend>>
+gvbm --> UC12
+UC12 --> UC13 : <<include>>
+
+hs --> UC14
+hs --> UC15
+hs --> UC16
+
+@enduml

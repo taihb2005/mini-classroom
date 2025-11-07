@@ -1,0 +1,27 @@
+@startuml
+left to right direction
+actor Admin as A
+actor "Giáo viên chủ nhiệm\n(GVCN)" as GVCN
+actor "Giáo viên bộ môn\n(GVBM)" as GVBM
+actor "Học sinh" as HS
+
+rectangle "Hệ thống quản lý lớp học" {
+}
+
+A --> (Quản lý lớp chủ nhiệm)
+A --> (Quản lý tài khoản & phân quyền)
+
+GVCN --> (Quản lý lớp chủ nhiệm)
+GVCN --> (Gán GVBM cho lớp)
+GVCN --> (Quản lý thời khóa biểu lớp)
+GVCN --> (Thêm học sinh)
+
+GVBM --> (Quản lý lớp môn)
+GVBM --> (Nhập & chỉnh sửa điểm)
+GVBM --> (Gửi thông báo lớp môn)
+
+HS --> (Xem thời khóa biểu)
+HS --> (Xem thông báo)
+HS --> (Xem kết quả học tập)
+
+@enduml

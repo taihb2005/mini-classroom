@@ -1,0 +1,177 @@
+@startuml "db"
+
+skinparam shadowing true
+!theme plain
+skinparam linetype ortho
+
+' ======================
+' ====== ENTITIES ======
+' ======================
+
+entity USER {
+  *user_id : Long <<PK>>
+  username : string
+  password_hash : string
+  full_name : string
+  email : string
+  phone : string?
+  date_of_birth : date
+  address: string
+  gender : enum(M,F,O)
+  user_type : enum(ADMIN,TEACHER,STUDENT)
+  created_at : datetime
+  updated_at : datetime?
+}
+
+entity ADMIN {
+  *admin_id: Long<<PK, FK>>
+}
+
+entity TEACHER {
+  *teacher_id : Long <<PK, FK>>
+  teacher_code: string
+  department: string
+  specialization : string?
+  degree : string?
+}
+
+entity STUDENT {
+  *student_id : Long <<PK, FK>>
+  student_code : string
+}
+
+entity ROLE {
+  *role_id : Long <<PK>>
+  name : enum(ADMIN,TEACHER_HOMEROOM,TEACHER_SUBJECT,STUDENT)
+  scope_type : enum(GLOBAL,CLASS)
+}
+
+entity PERMISSION {
+  *permission_id : Long <<PK>>
+  operation : string
+}
+
+entity CLASS {
+  *class_id : Long <<PK>>
+  name : string         
+  grade : int
+  school_year : string
+  semester : string
+  homeroom : bool
+  homeroom_teacher_id : Long <<FK>>  
+  created_by : Long <<FK>>          
+}
+
+entity USER_CLASS_ROLE {
+  *user_class_role_id : Long <<PK>>
+  user_id : Long <<FK>>
+  class_id : Long <<FK>>
+  role_id : Long <<FK>>
+  assigned_at : datetime
+  revoked_at : datetime?
+}
+
+entity ENROLLMENT_CLASS {
+  *enroll_class_id : Long <<PK>>
+  class_id : Long <<FK>>
+  student_id : Long <<FK>>       
+  status : enum(ACTIVE,PENDING,REMOVED)
+  joined_at : datetime
+}
+
+entity SUBJECT {
+  *subject_id : Long <<PK>>
+  name : string
+  code : string
+}
+
+entity CLASS_SUBJECT {
+  *class_subject_id : Long <<PK>>
+  class_id : Long <<FK>>
+  subject_id : Long <<FK>>
+  teacher_id : Long <<FK>>   
+  -- UNIQUE(class_id, subject_id)
+}
+
+entity ENROLLMENT_CLASS_SUBJECT {
+  *enroll_cs_id : Long <<PK>>
+  class_subject_id : Long <<FK>>
+  student_id : Long <<FK>>          
+  joined_at : datetime
+}
+
+entity ASSESSMENT_TYPE {
+  *assessment_type_id : Long <<PK>>
+  name : string    
+  weight : int
+}
+
+entity SCORE {
+  *score_id : Long <<PK>>
+  class_subject_id : Long <<FK>>
+  student_id : Long <<FK>>
+  assessment_type_id : Long <<FK>>
+  value : decimal
+  note : string?
+}
+
+entity SCHEDULE {
+  *schedule_id : Long <<PK>>
+  class_subject_id : Long <<FK>>
+  day_of_week : int       
+  session : enum(MORNING,AFTERNOON)
+  period : int           
+  room : string?
+}
+
+entity NOTIFICATION {
+  *notification_id : Long <<PK>>
+  class_subject_id : Long <<FK>>
+  sender_id : Long <<FK>>   
+  title : string
+  content : text
+  created_at : datetime
+  channel : enum(PUSH,EMAIL,BOTH)
+}
+
+
+' ======================
+' ===== RELATIONS ======
+' ======================
+
+' ---- User inheritance ----
+USER ||--|| ADMIN : "extends"
+USER ||--|| TEACHER : "extends"
+USER ||--|| STUDENT : "extends"
+
+' ---- RBAC Core ----
+USER ||--o{ USER_CLASS_ROLE
+ROLE ||--o{ USER_CLASS_ROLE
+CLASS ||--o{ USER_CLASS_ROLE
+ROLE ||--|{ PERMISSION
+
+' ---- Class & Enrollment ----
+TEACHER ||--o{ CLASS : "homeroom_teacher (FK)"
+ADMIN ||--o{ CLASS : "admin creates (FK)"
+CLASS ||--o{ ENROLLMENT_CLASS
+STUDENT ||--o{ ENROLLMENT_CLASS : "student"
+
+' ---- Subjects ----
+CLASS   ||--o{ CLASS_SUBJECT
+SUBJECT ||--o{ CLASS_SUBJECT
+TEACHER ||--o{ CLASS_SUBJECT : "teacher"
+
+CLASS_SUBJECT ||--o{ ENROLLMENT_CLASS_SUBJECT
+STUDENT       ||--o{ ENROLLMENT_CLASS_SUBJECT : "student"
+
+' ---- Grading ----
+ASSESSMENT_TYPE ||--o{ SCORE
+CLASS_SUBJECT   ||--o{ SCORE
+STUDENT         ||--o{ SCORE : "student receives"
+
+' ---- Schedule & Notifications ----
+CLASS_SUBJECT ||--o{ SCHEDULE : "has many"
+CLASS_SUBJECT ||--o{ NOTIFICATION : "has many"
+TEACHER       ||--o{ NOTIFICATION : "teacher sends"
+
+@enduml

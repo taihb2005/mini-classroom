@@ -1,0 +1,61 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam ArrowColor #1a1a1a
+
+actor Admin
+actor Teacher
+actor Student
+
+rectangle "Client Layer" {
+  [Web Portal\n(Admin + Teacher)]
+  [Android App\n(Student + Teacher)]
+}
+
+rectangle "Application Layer" {
+  [REST API]
+  [Auth Service]
+  [Notification Service]
+  [Email Service]
+}
+
+rectangle "Integration Layer" {
+  [Firebase Cloud Messaging]
+  [SMTP Mail Server]
+}
+
+rectangle "Data Layer" {
+  [Relational Database\n(PostgreSQL/MySQL)]
+}
+
+'---------------- Interactions ----------------
+
+' Client -> UI
+Admin --> [Web Portal\n(Admin + Teacher)]
+Teacher --> [Web Portal\n(Admin + Teacher)]
+Teacher --> [Android App\n(Student + Teacher)]
+Student --> [Android App\n(Student + Teacher)]
+
+' UI -> API
+[Web Portal\n(Admin + Teacher)] --> [REST API]
+[Android App\n(Student + Teacher)] --> [REST API]
+
+' API -> Auth
+[REST API] --> [Auth Service]
+
+' API -> Database
+[REST API] --> [Relational Database\n(PostgreSQL/MySQL)]
+
+' API -> Notification / Email
+[REST API] --> [Notification Service]
+[REST API] --> [Email Service]
+
+' Notification -> FCM
+[Notification Service] --> [Firebase Cloud Messaging]
+[Firebase Cloud Messaging] --> [Android App\n(Student + Teacher)]
+
+' Email -> SMTP
+[Email Service] --> [SMTP Mail Server]
+
+@enduml
